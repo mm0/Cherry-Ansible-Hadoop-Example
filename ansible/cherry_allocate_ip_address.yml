@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  #  name: "Cherry Servers Allocate {{ cherryservers_number_of_servers }} servers"
+  connection: local
+  tasks:
+  - name: Manage IP addresses
+    cherryservers_ips:
+      project_id: "{{ cherryservers_project_id }}"
+      region: "{{ cherryservers_region }}"
+      state: present
+    with_sequence: start=1 end="{{ cherryservers_number_of_servers }}"
+    register: ip_output
+
+  - debug:
+      msg: "{{ ip_output.results[item|int].ip_address[0].address }}"
+    with_sequence: start=0  end="{{ cherryservers_number_of_servers|int -1 }}"

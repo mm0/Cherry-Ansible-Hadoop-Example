@@ -1,0 +1,9 @@
+---  
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Manage SSH keys
+    cherryservers_sshkey:
+      label: "mysshkey"
+      key_file: "{{ '~/.ssh/cherry.pub' | expanduser }}"
+      state: present

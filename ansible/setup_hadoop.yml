@@ -1,0 +1,11 @@
+# 
+# example:  
+#
+#   ansible-playbook setup_hadoop.yml --extra-vars "target=vagrant" 
+#
+---
+- hosts: "{{ target }}"
+  gather_facts: true
+  become: yes
+  roles:
+  - mm0.hadoop

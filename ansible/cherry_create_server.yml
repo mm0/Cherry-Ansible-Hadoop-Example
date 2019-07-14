@@ -1,0 +1,20 @@
+---
+- name: Cherry Servers Create
+  connection: local
+  hosts: localhost
+  tasks:
+  - name: Deploy CherryServers Server
+    cherryservers_server:
+      plan_id: "{{ cherryservers_plan_id }}"
+      project_id: "{{ cherryservers_project_id }}"
+      image: "{{ cherryservers_image }}"
+      region: "{{ cherryservers_region }}"
+      ip_address: "{{ item }}"
+      hostname: "{{ item }}"
+      state: present
+      count: 1 #"{{ cherryservers_number_of_servers }}"
+      ssh_label:
+        - mysshkey
+    with_items:
+    - "{{ groups['cluster_master'] }}"
+    - "{{ groups['cluster_nodes'] }}"

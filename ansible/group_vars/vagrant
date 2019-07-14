@@ -1,0 +1,11 @@
+---
+# options for state are:  present, absent
+users:
+  vagrant:
+    state: present 
+    groups:  sudo,vagrant
+    sudo: "ALL=(ALL) NOPASSWD: ALL"
+nodes:
+- 3.3.3.3
+# options for state are:  present, absent
+
