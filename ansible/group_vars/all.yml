@@ -3,9 +3,10 @@ install_dir: /opt
 java_packages:
 - "openjdk-11-jdk"
 java_home: /usr/lib/jvm/java-11-openjdk-amd64/
-cherryservers_project_id: 86677
+cherryservers_project_id: 86949
 cherryservers_plan_id: 59
 cherryservers_region: EU-East-1
 cherryservers_number_of_servers: 3
 cherryservers_image: 'Ubuntu 18.04 64bit'
-cherryservers_keyfile: '~/.ssh/cherry.pub'
+cherryservers_keyfile: '~/.ssh/cherry'
+cherryservers_keyfile_pub: "{{ cherryservers_keyfile }}.pub"

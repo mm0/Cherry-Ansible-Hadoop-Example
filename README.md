@@ -3,10 +3,10 @@ How-to: Create a Hadoop/Spark Cluster on CherryServer using only Ansible
 
 ## Description
 
-In this tutorial, we will be creating 3 servers on the CherryServers Provider 
+In this tutorial, we will be creating 3 servers on the Cherry Servers Provider 
 in order to setup a 3 node hadoop/spark cluster, with 1 master server and 2 slaves.  
 
-We will be using Ansible for both configuring the CherryServers account and in order to
+We will be using Ansible for both configuring the Cherry Servers account and in order to
 reserve the servers within CherryServers as well as configuring the servers themselves.
 Some experience with Ansible will make this easier to follow, but is not completely necessary.
 
@@ -27,6 +27,12 @@ This is the Cherry Servers Ansible Module that we will use to interact with Cher
   ```
   curl -sL https://github.com/cherryservers/cherry-ansible-module/archive/master.zip; mkdir -p library/cherryservers; unzip -j master.zip "cherry-ansible-module-master/cherryservers/*" -d library/cherryservers ; rm master.zip
   ````
+- You will also need to download the hadoop and spark roles for this project by running the following command:
+
+  ```bash
+  cd ansible;
+  ansible-galaxy install -r requirements.yml  
+  ```
 
 
 ## Directions
@@ -71,6 +77,30 @@ This is the Cherry Servers Ansible Module that we will use to interact with Cher
 
     This will create `ansible/files/test-key` and `ansible/files/test-key.pub`
 
+### From here there are two ways to deploy your servers, either in one command (below), or step by step (further below):
+
+## Complete Build
+- Simply run 
+
+    ```
+    export ANSIBLE_HOST_KEY_CHECKING=False
+    ansible-playbook create_complete.yml 
+    ```
+    
+    Note: if you choose to do this, make sure there are no hosts or IP's currently set in the "cluster_master" or "cluster_nodes" host groups located in the inventory directory `hosts/`
+    
+    This will:
+    - Add your ssh key to your account
+    - Allocate 3 IP addresses
+    - Create one server per address
+    - Wait for each server to become available (may take up to 10 minutes)
+    - Install and configure hadoop + spark on each server.  One will be a master node and the other two servers will be datanodes.
+    
+    See the end of this documentation to see how to access the admin panels for hadoop and spark
+    
+    
+ 
+### Step by step build
 - We can now add the `cherry` SSH Key to our Cherry Servers account. 
 
     The file path for the key is stored in `group_vars/all.yml` and can be overridden here or even via CLI by adding the ` --extra-vars cherryservers_keyfile=/path/to/mykey.pub` when running the command below (it defaults to `~/.ssh/cherry.pub`):
@@ -78,12 +108,11 @@ This is the Cherry Servers Ansible Module that we will use to interact with Cher
     ```
     ansible-playbook cherry_add_ssh_key_to_account.yml 
     ```
-  
+ 
 - Let's continue by allocating 3 IP addresses with which to access our servers that will be created in the next step.
 
     ```
     ansible-playbook cherry_allocate_ip_address.yml 
-
     ```
     This will output:
     ```bash
@@ -163,6 +192,7 @@ This is the Cherry Servers Ansible Module that we will use to interact with Cher
   ansible-playbook start_hadoop_and_spark.yml -e "target=cluster_master" --private-key="~/.ssh/cherry" 
   ```
   
+### Admin Panels
 
 - The Cluster should now be ready and you will be able to access the admin panels via:
 

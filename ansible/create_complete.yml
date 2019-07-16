@@ -1,0 +1,77 @@
+---  
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Manage SSH keys
+    cherryservers_sshkey:
+      label: "mysshkey"
+      key_file: "{{ cherryservers_keyfile_pub | expanduser }}"
+      state: present
+
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Manage IP addresses
+    cherryservers_ips:
+      project_id: "{{ cherryservers_project_id }}"
+      region: "{{ cherryservers_region }}"
+      state: present
+    with_sequence: "start=1 end={{ cherryservers_number_of_servers }}"
+    register: ip_output
+
+  - name: register hosts
+    add_host:
+      hostname: "{{ ip_output.results[0].ip_address[0].address }}"
+      group: "cluster_master"
+
+  - name: register hosts
+    add_host:
+      hostname: "{{ ip_output.results[item|int].ip_address[0].address }}"
+      group: "cluster_nodes"
+    with_sequence: "start=1 end={{ cherryservers_number_of_servers -1 }}"
+
+  - debug:
+      msg: "{{ ip_output.results[item|int].ip_address[0].address }}"
+    with_sequence: "start=0 end={{ cherryservers_number_of_servers -1 }}"
+
+- name: Cherry Servers Create
+  connection: local
+  hosts: localhost
+  tasks:
+  - name: Deploy CherryServers Server
+    cherryservers_server:
+      plan_id: "{{ cherryservers_plan_id }}"
+      project_id: "{{ cherryservers_project_id }}"
+      image: "{{ cherryservers_image }}"
+      region: "{{ cherryservers_region }}"
+      ip_address: "{{ item }}"
+      hostname: "{{ item }}"
+      state: present
+      count: 1 
+      ssh_label:
+        - mysshkey
+    with_items:
+    - "{{ groups['cluster_master'] }}"
+    - "{{ groups['cluster_nodes'] }}"
+
+  - name: Wait until servers are up
+    wait_for: 
+      port: 22
+      host: "{{ item }}"
+      search_regex: OpenSSH
+      delay: 10
+      timeout: 1200
+    connection: local
+    with_items:
+    - "{{ groups['cluster_master'] }}"
+    - "{{ groups['cluster_nodes'] }}"
+
+- hosts: "cluster_master,cluster_nodes"
+  gather_facts: true
+  user: root
+  become: yes
+  vars:
+    ansible_ssh_private_key_file: "{{ cherryservers_keyfile }}"
+  roles:
+  - mm0.hadoop
+  - mm0.spark
