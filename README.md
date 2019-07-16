@@ -24,6 +24,10 @@ Instructions can be found [here](https://docs.ansible.com/ansible/latest/install
 - You will need to download [this](https://github.com/cherryservers/cherry-ansible-module/tree/master/cherryservers) directory into the `ansible/library` subdirectory of this project.  
 This is the Cherry Servers Ansible Module that we will use to interact with Cherry Server's API. The `ansible.cfg` file in the `ansible` directory has a `library` entry that points to the `library` subdirectory and tells ansible where to find our custom modules.
 
+  ```
+  curl -sL https://github.com/cherryservers/cherry-ansible-module/archive/master.zip; mkdir -p library/cherryservers; unzip -j master.zip "cherry-ansible-module-master/cherryservers/*" -d library/cherryservers ; rm master.zip
+  ````
+
 
 ## Directions
 
